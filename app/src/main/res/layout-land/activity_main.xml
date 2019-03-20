@@ -160,8 +160,9 @@
         android:onClick="onPressClear"
         android:text="CLEAR"
         android:textSize="32sp"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonEquals"
         app:layout_constraintEnd_toStartOf="@id/buttonTimes"
-        tools:layout_editor_absoluteY="268dp" />
+        app:layout_constraintTop_toTopOf="@+id/buttonEquals" />
 
     <Button
         android:id="@+id/buttonPlus"
