@@ -138,7 +138,7 @@
         android:text="0"
         android:textSize="32sp"
         app:layout_constraintStart_toEndOf="@+id/buttonNumeral9"
-        app:layout_constraintTop_toBottomOf="@+id/buttonNumeral6" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonNumeral3" />
 
     <Button
         android:id="@+id/buttonEquals"
@@ -156,37 +156,12 @@
         android:id="@+id/buttonClear"
         android:layout_width="150dp"
         android:layout_height="72sp"
-        android:layout_marginTop="8sp"
         android:layout_marginEnd="8dp"
         android:onClick="onPressClear"
         android:text="CLEAR"
         android:textSize="32sp"
         app:layout_constraintEnd_toStartOf="@id/buttonTimes"
-        app:layout_constraintTop_toBottomOf="@+id/buttonMod" />
-
-    <Button
-        android:id="@+id/buttonMod"
-        android:layout_width="150dp"
-        android:layout_height="72sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:onClick="onPressOpMod"
-        android:text="MOD"
-        android:textSize="32sp"
-        app:layout_constraintEnd_toStartOf="@id/buttonTimes"
-        app:layout_constraintTop_toBottomOf="@+id/buttonExponent" />
-
-    <Button
-        android:id="@+id/buttonExponent"
-        android:layout_width="150dp"
-        android:layout_height="72sp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:onClick="onPressOpExponent"
-        android:text="EXP"
-        android:textSize="32sp"
-        app:layout_constraintEnd_toStartOf="@id/buttonPlus"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        tools:layout_editor_absoluteY="268dp" />
 
     <Button
         android:id="@+id/buttonPlus"

@@ -1,114 +1,147 @@
 package codes.nora.jcalculator;
 
 import java.util.Locale;
+import java.util.Stack;
 
 public class Calculator {
-    // The last computed value.
-    public double storedValue = 0;
-    // The operation in progress.
-    public int storedOperation = 0;
-    // The value currently being entered
-    public Double workingValue = null;
+    public String state;
 
-    public static int OP_REPLACE = 0;
-    public static int OP_ADD = 1;
-    public static int OP_SUBTRACT = 2;
-    public static int OP_MUTLIPLY = 3;
-    public static int OP_DIVIDE = 4;
-    public static int OP_EXPONENT = 5;
-    public static int OP_MODULO = 6;
+    private static final String operators = "-+%/x^";
+    private static final String operands = "0123456789";
 
-    public Calculator() {}
+    public Calculator() {
+        this.state = "";
+    }
 
-    public Calculator(double storedValue, int storedOperation, Double workingValue) {
-        this.storedValue = storedValue;
-        this.storedOperation = storedOperation;
-        this.workingValue = workingValue;
+    public Calculator(String state) {
+        this.state = state;
+    }
+
+    public void push(String item) {
+        this.state += item;
     }
 
     public String display() {
-        if (storedOperation == OP_REPLACE) {
-            if (workingValue == null) {
-                return String.format(Locale.ENGLISH, "%s", fmt(storedValue));
-            } else {
-                return String.format(Locale.ENGLISH, "%s", fmt(workingValue));
-            }
-        } else {
-            if (workingValue == null) {
-                return String.format(Locale.ENGLISH, "%s%s", fmt(storedValue), operationDisplay());
-            } else {
-                return String.format(Locale.ENGLISH, "%s%s%s", fmt(storedValue), operationDisplay(), fmt(workingValue));
-            }
-        }
-    }
-
-    public void pushDigit(int digit) {
-        if (digit < 0 || digit > 9) {
-            throw new NumberFormatException("Cannot push a digit outside of range 0 to 9.");
-        }
-
-        if (workingValue == null) {
-            workingValue = (double) digit;
-        } else {
-            workingValue = workingValue * 10 + digit;
-        }
-    }
-
-    public void pushOperation(int operation) {
-        evaluate();
-        storedOperation = operation;
-    }
-
-    public void evaluate() {
-        // Pressing equals with no working value is meaningless.
-        if (workingValue == null) {
-            return;
-        }
-
-        if (storedOperation == OP_REPLACE) {
-            storedValue = workingValue;
-        } else if (storedOperation == OP_ADD) {
-            storedValue += workingValue;
-        } else if (storedOperation == OP_SUBTRACT) {
-            storedValue -= workingValue;
-        } else if (storedOperation == OP_MUTLIPLY) {
-            storedValue *= workingValue;
-        } else if (storedOperation == OP_DIVIDE) {
-            storedValue /= workingValue;
-        } else if (storedOperation == OP_EXPONENT) {
-            storedValue = Math.pow(storedValue, workingValue);
-        } else if (storedOperation == OP_MODULO) {
-            storedValue = (double) (Math.floor(storedValue) % Math.floor(workingValue));
-        }
-
-        workingValue = null;
-        storedOperation = OP_REPLACE;
+        return this.state;
     }
 
     public void clear() {
-        workingValue = null;
-        storedValue = 0;
-        storedOperation = OP_REPLACE;
+        this.state = "";
     }
 
-    private String operationDisplay() {
-        if (storedOperation == OP_REPLACE) {
-            return "";
-        } else if (storedOperation == OP_ADD) {
-            return "+";
-        } else if (storedOperation == OP_SUBTRACT) {
-            return "-";
-        } else if (storedOperation == OP_MUTLIPLY) {
-            return "×";
-        } else if (storedOperation == OP_DIVIDE) {
-            return "÷";
-        }  else if (storedOperation == OP_EXPONENT) {
-            return "^";
-        }  else if (storedOperation == OP_MODULO) {
-            return "%";
-        } else {
-            return "?";
+    public void evaluate() {
+        this.state = String.format(Locale.ENGLISH, "%d", evaluatePostfix(toPostfix(state)));
+    }
+
+    public String toPostfix(String expression) {
+        // Set up the datastructures in use.
+        char[] expression_chars = expression.toCharArray();
+        Stack<Character> stack = new Stack<Character>();
+        StringBuilder out = new StringBuilder(expression.length());
+        boolean placingOperand = false;
+
+        for (char c: expression_chars) {
+            // For operators, look at the stack and make sure it's in a state where we can add on
+            // an operator.
+            if (isOperator(c)) {
+                placingOperand = false;
+                while (!stack.isEmpty()) {
+                    if (operatorGreaterOrEqual(stack.peek(), c)) {
+                        out.append(stack.pop());
+                    } else {
+                        break;
+                    }
+                }
+                stack.push(c);
+            }  else if (isOperand(c)) {
+                if (!placingOperand) {
+                    placingOperand = true;
+                    out.append(' ');
+                    out.append(c);
+                } else {
+                    out.append(c);
+                }
+            } else {
+                throw new Error("Bad value in parsing expression.");
+            }
         }
+        while (!stack.empty()) {
+            out.append(stack.pop());
+        }
+        return out.toString();
+    }
+
+    public int evaluatePostfix(String expression) {
+        char[] expression_chars = expression.toCharArray();
+        Stack<Integer> stack = new Stack<Integer>();
+
+        boolean currentlyInOperand = false;
+
+        for (char c: expression_chars) {
+            if (isOperand(c)) {
+                if (!currentlyInOperand) {
+                    currentlyInOperand = true;
+                    stack.push(Integer.parseInt(String.format(Locale.ENGLISH, "%c", c)));
+                } else {
+                    int op = stack.pop();
+                    stack.push(op * 10 + Integer.parseInt(String.format(Locale.ENGLISH, "%c", c)));
+                }
+            } else if (isOperator(c)) {
+                currentlyInOperand = false;
+                int a = stack.pop();
+                int b = stack.pop();
+                int result;
+                switch (c) {
+                    case 'x':
+                        result = a * b;
+                        stack.push(result);
+                        break;
+                    case '/':
+                        result = b / a;
+                        stack.push(result);
+                        break;
+                    case '+':
+                        result = a + b;
+                        stack.push(result);
+                        break;
+                    case '-':
+                        result = b - a;
+                        stack.push(result);
+                        break;
+                    case '%':
+                        result = b % a;
+                        stack.push(result);
+                        break;
+                    case '^':
+                        result = (int) Math.pow((double) b, (double) a);
+                        stack.push(result);
+                        break;
+                }
+            } else if (c == ' ') {
+                currentlyInOperand = false;
+            }
+        }
+        return stack.pop();
+    }
+    private int getPrecedence(char operator) {
+        int ret = 0;
+        if (operator == '-' || operator == '+') {
+            ret = 1;
+        } else if (operator == '*' || operator == '/') {
+            ret = 2;
+        }
+        return ret;
+    }
+    private boolean operatorGreaterOrEqual(char op1, char op2) {
+        return getPrecedence(op1) >= getPrecedence(op2);
+    }
+
+    private boolean isOperator(char val) {
+        return operators.indexOf(val) >= 0;
+    }
+
+    private boolean isOperand(char val) {
+        return operands.indexOf(val) >= 0;
     }
 
     private static String fmt(double d)

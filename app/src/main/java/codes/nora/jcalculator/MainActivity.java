@@ -21,14 +21,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             model = new Calculator();
         } else {
-            Double workingValue = null;
-            if (!Double.isNaN(savedInstanceState.getDouble("workingValue"))) {
-                workingValue = savedInstanceState.getDouble("workingValue");
-            }
-            model = new Calculator(
-                        savedInstanceState.getDouble("storedValue"),
-                        savedInstanceState.getInt("storedOperation"),
-                        workingValue);
+            model = new Calculator(savedInstanceState.getString("state"));
         }
 
         update();
@@ -38,13 +31,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
 
-        savedInstanceState.putDouble("storedValue", model.storedValue);
-        savedInstanceState.putInt("storedOperation", model.storedOperation);
-        if (model.workingValue != null) {
-            savedInstanceState.putDouble("workingValue", model.workingValue);
-        } else {
-            savedInstanceState.putDouble("workingValue", Float.NaN);
-        }
+        savedInstanceState.putString("state", model.state);
     }
 
     private void update() {
@@ -52,82 +39,72 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onPressDigit1(View v) {
-        model.pushDigit(1);
+        model.push("1");
         update();
     }
 
     public void onPressDigit2(View v) {
-        model.pushDigit(2);
+        model.push("2");
         update();
     }
 
     public void onPressDigit3(View v) {
-        model.pushDigit(3);
+        model.push("3");
         update();
     }
 
     public void onPressDigit4(View v) {
-        model.pushDigit(4);
+        model.push("4");
         update();
     }
 
     public void onPressDigit5(View v) {
-        model.pushDigit(5);
+        model.push("5");
         update();
     }
 
     public void onPressDigit6(View v) {
-        model.pushDigit(6);
+        model.push("6");
         update();
     }
 
     public void onPressDigit7(View v) {
-        model.pushDigit(7);
+        model.push("7");
         update();
     }
 
     public void onPressDigit8(View v) {
-        model.pushDigit(8);
+        model.push("8");
         update();
     }
 
     public void onPressDigit9(View v) {
-        model.pushDigit(9);
+        model.push("9");
         update();
     }
 
     public void onPressDigit0(View v) {
-        model.pushDigit(0);
+        model.push("0");
         update();
     }
 
     public void onPressOpAdd(View v) {
-        model.pushOperation(Calculator.OP_ADD);
+        model.push("+");
         update();
     }
 
     public void onPressOpSubtract(View v) {
-        model.pushOperation(Calculator.OP_SUBTRACT);
+        model.push("-");
         update();
     }
 
     public void onPressOpMultiply(View v) {
-        model.pushOperation(Calculator.OP_MUTLIPLY);
+        model.push("x");
         update();
     }
 
     public void onPressOpDivide(View v) {
-        model.pushOperation(Calculator.OP_DIVIDE);
-        update();
-    }
-
-    public void onPressOpMod(View v) {
-        model.pushOperation(Calculator.OP_MODULO);
-        update();
-    }
-
-    public void onPressOpExponent(View v) {
-        model.pushOperation(Calculator.OP_EXPONENT);
+        model.push("/");
         update();
     }
 
