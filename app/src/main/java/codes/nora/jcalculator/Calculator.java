@@ -124,11 +124,13 @@ public class Calculator {
         return stack.pop();
     }
     private int getPrecedence(char operator) {
-        int ret = 0;
+        int ret = Integer.MAX_VALUE;
         if (operator == '-' || operator == '+') {
             ret = 1;
-        } else if (operator == '*' || operator == '/') {
+        } else if (operator == 'x' || operator == '/') {
             ret = 2;
+        } else if (operator == '%') {
+            ret = 3;
         }
         return ret;
     }
